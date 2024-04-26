@@ -1,0 +1,18 @@
+﻿@page
+@model IndexModel
+@{
+    ViewData["Title"] = "Home page";
+}
+
+<!-- About Start -->
+@await Html.PartialAsync("__About")
+<!-- About End -->
+<!-- Features Start -->
+@await Html.PartialAsync("__Features")
+<!-- Features Start -->
+<!-- Service Start -->
+@await Html.PartialAsync("__Service")
+<!-- Service End -->
+<!-- Team Start -->
+@await Html.PartialAsync("__Team")
+<!-- Team End -->
