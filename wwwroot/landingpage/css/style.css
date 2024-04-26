@@ -490,3 +490,33 @@ h6,
         margin-bottom: -75px;
     }
 }
+
+.logo {
+    width: 80px;
+    height: 80px;
+}
+
+#titulo {
+    white-space: nowrap;
+    overflow: hidden;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    text-align: center;
+    background-color: #ffffff;
+    border-bottom: 1px solid #ccc;
+    padding: 5px;
+    margin: 0;
+    animation: marquee 10s linear infinite;
+}
+
+@keyframes marquee {
+    0% {
+        transform: translateX(100%);
+    }
+
+    100% {
+        transform: translateX(-100%);
+    }
+}
