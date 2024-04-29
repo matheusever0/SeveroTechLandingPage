@@ -10,6 +10,7 @@
         public const string TITULO_PLURAL_SERVICO = "Nossos Serviços";
         public const string TITULO_CONHECA_TIME = "Conheça o time";
         public const string TITULO_CONTATE_NOS = "Contate-nos";
+        public const string TITULO_TEAM = "Equipe";
 
     }
 }

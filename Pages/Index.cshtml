@@ -3,16 +3,18 @@
 @{
     ViewData["Title"] = "Home page";
 }
-
-<!-- About Start -->
-@await Html.PartialAsync("__Contato")
-<!-- About End -->
-<!-- Features Start -->
-@await Html.PartialAsync("__Features")
-<!-- Features Start -->
+<!-- Sobre Start -->
+@await Html.PartialAsync("__Sobre")
+<!-- Sobre End -->
 <!-- Service Start -->
 @await Html.PartialAsync("__Service")
 <!-- Service End -->
+<!-- Features Start -->
+@await Html.PartialAsync("__Features")
+<!-- Features Start -->
+<!-- About Start -->
+@await Html.PartialAsync("__Contato")
+<!-- About End -->
 <!-- Team Start -->
 @await Html.PartialAsync("__Team")
 <!-- Team End -->

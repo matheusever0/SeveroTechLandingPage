@@ -151,6 +151,11 @@ h6,
     background-color: rgba(var(--bs-custom-rgb), var(--bs-bg-opacity)) !important;
 }
 
+.bg-mist-severotech {
+    --bs-bg-opacity: 1;
+    background-color: rgba(var(--mist), var(--bs-bg-opacity)) !important;
+}
+
 .btn-outline-green {
     color: var(--green);
     border-color: var(--green);
@@ -192,15 +197,15 @@ h6,
 @media (max-width: 991.98px) {
     .sticky-top.navbar-dark {
         position: relative;
-        background: var(--dark);
+        background: var(--green);
     }
 
-    .navbar-dark .navbar-nav .nav-link,
-    .navbar-dark .navbar-nav .nav-link.show,
-    .sticky-top.navbar-dark .navbar-nav .nav-link {
-        padding: 10px 0;
-        color: var(--dark);
-    }
+        .navbar-dark .navbar-nav .nav-link,
+        .navbar-dark .navbar-nav .nav-link.show,
+        .sticky-top.navbar-dark .navbar-nav .nav-link {
+            padding: 10px 0;
+            color: var(--green);
+        }
 
     .navbar-dark .navbar-brand h1 {
         color: var(--green);

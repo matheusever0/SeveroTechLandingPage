@@ -16,6 +16,13 @@ namespace SeveroTechLanding.Extensions
             {
                 currentPageName = currentPageName.Substring(0, currentPageName.Length - 1) + "ies";
             }
+
+            if(currentPageName == "Services")
+            {
+                currentPageName = "Serviços";
+                currentCshtml = "Serviços";
+            }
+
             pageModel.ViewData["PageFolderName"] = currentPageName;
             pageModel.ViewData["CshtmlName"] = currentCshtml;
         }
