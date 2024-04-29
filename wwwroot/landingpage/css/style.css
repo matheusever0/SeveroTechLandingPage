@@ -3,7 +3,14 @@
     --primary: #06A3DA;
     --secondary: #34AD54;
     --light: #EEF9FF;
-    --dark: #091E3E;
+    --dark: #171C16;
+    --green: #0FE082;
+    --mist: #D3D3D3;
+
+}
+
+body {
+    background-color: var(--dark) !important;
 }
 
 
@@ -11,7 +18,7 @@
 .spinner {
     width: 40px;
     height: 40px;
-    background: var(--primary);
+    background: var(--green);
     margin: 100px auto;
     -webkit-animation: sk-rotateplane 1.2s infinite ease-in-out;
     animation: sk-rotateplane 1.2s infinite ease-in-out;
@@ -92,11 +99,17 @@ h6,
 }
 
 .btn-primary:hover {
-    box-shadow: inset 0 0 0 0 var(--primary);
+    box-shadow: inset 0 0 0 0 var(--green);
 }
 
 .btn-secondary:hover {
     box-shadow: inset 0 0 0 0 var(--secondary);
+}
+
+.btn-green {
+    color: #fff;
+    background-color: #0FE082;
+    border-color: #0FE082;
 }
 
 .btn-square {
@@ -122,6 +135,29 @@ h6,
     text-align: center;
 }
 
+.bg-dark-severotech {
+    --bs-dark-rgb: 23, 28, 22; /* Cor #171C16 */
+    --bs-bg-opacity: 1;
+    background-color: rgba(var(--bs-dark-rgb), var(--bs-bg-opacity)) !important;
+}
+
+.text-green-severotech {
+    --bs-custom-rgb: 15, 224, 130; /* Cor #0FE082 */
+    --bs-text-opacity: 1;
+    color: rgba(var(--bs-custom-rgb), var(--bs-text-opacity)) !important;
+}
+
+.bg-green {
+    --bs-custom-rgb: 15, 224, 130; /* Cor #0FE082 */
+    --bs-bg-opacity: 1;
+    background-color: rgba(var(--bs-custom-rgb), var(--bs-bg-opacity)) !important;
+}
+
+.btn-outline-green {
+    color: #0FE082;
+    border-color: #0FE082;
+}
+
 
 /*** Navbar ***/
 .navbar-dark .navbar-nav .nav-link {
@@ -129,8 +165,8 @@ h6,
     position: relative;
     margin-left: 25px;
     padding: 35px 0;
-    color: #FFFFFF;
-    font-size: 18px;
+    color: #0FE082;
+    font-size: 15px;
     font-weight: 600;
     outline: none;
     transition: .5s;
@@ -138,27 +174,27 @@ h6,
 
 .sticky-top.navbar-dark .navbar-nav .nav-link {
     padding: 20px 0;
-    color: var(--dark);
+    color: var(--green);
 }
 
 .navbar-dark .navbar-nav .nav-link:hover,
 .navbar-dark .navbar-nav .nav-link.active {
-    color: var(--primary);
+    color: var(--green);
 }
 
 .navbar-dark .navbar-brand h1 {
-    color: #FFFFFF;
+    color: var(--mist);
 }
 
 .navbar-dark .navbar-toggler {
-    color: var(--primary) !important;
-    border-color: var(--primary) !important;
+    color: var(--green) !important;
+    border-color: var(--green) !important;
 }
 
 @media (max-width: 991.98px) {
     .sticky-top.navbar-dark {
         position: relative;
-        background: #FFFFFF;
+        background: var(--dark);
     }
 
     .navbar-dark .navbar-nav .nav-link,
@@ -169,7 +205,7 @@ h6,
     }
 
     .navbar-dark .navbar-brand h1 {
-        color: var(--primary);
+        color: var(--green);
     }
 }
 
@@ -182,10 +218,10 @@ h6,
         border-bottom: 1px solid rgba(256, 256, 256, .1);
         z-index: 999;
     }
-    
+
     .sticky-top.navbar-dark {
         position: fixed;
-        background: #FFFFFF;
+        background: var(--dark);
     }
 
     .navbar-dark .navbar-nav .nav-link::before {
@@ -195,7 +231,7 @@ h6,
         height: 2px;
         bottom: -1px;
         left: 50%;
-        background: var(--primary);
+        background: var(--green);
         transition: .5s;
     }
 
@@ -210,7 +246,7 @@ h6,
     }
 
     .sticky-top.navbar-dark .navbar-brand h1 {
-        color: var(--primary);
+        color: var(--green);
     }
 }
 
@@ -221,7 +257,7 @@ h6,
     left: 0;
     right: 0;
     bottom: 0;
-    background: rgba(9, 30, 62, .7);
+    background: rgba(0, 0, 0, .7);
     z-index: 1;
 }
 
@@ -257,7 +293,7 @@ h6,
     height: 5px;
     left: 0;
     bottom: 0;
-    background: var(--primary);
+    background: var(--green);
     border-radius: 2px;
 }
 
@@ -325,7 +361,7 @@ h6,
     display: flex;
     align-items: center;
     justify-content: center;
-    background: var(--primary);
+    background: var(--green);
     border-radius: 2px;
     transform: rotate(-45deg);
 }
@@ -370,7 +406,7 @@ h6,
 
 .testimonial-carousel .owl-dot.active {
     width: 30px;
-    background: var(--primary);
+    background: var(--green);
 }
 
 .testimonial-carousel .owl-item.center {
@@ -492,8 +528,8 @@ h6,
 }
 
 .logo {
-    width: 80px;
-    height: 80px;
+    width: 4rem ;
+    height: 4rem;
 }
 
 #titulo {
@@ -504,7 +540,7 @@ h6,
     left: 0;
     width: 100%;
     text-align: center;
-    background-color: #ffffff;
+    background-color: #0FE082;
     border-bottom: 1px solid #ccc;
     padding: 5px;
     margin: 0;

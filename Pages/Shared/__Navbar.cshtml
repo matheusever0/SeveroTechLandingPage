@@ -14,13 +14,11 @@
         <div class="collapse navbar-collapse" id="navbarCollapse">
             <div class="navbar-nav ms-auto py-0">
                 <a asp-area="" asp-page="/Index" class="nav-item nav-link @(currentCshtmlName.Equals("") ? "active" : "")">@TituloEnum.TITULO_INICIO</a>
-                <a asp-area="" asp-page="/Sobre" class="nav-item nav-link @(currentCshtmlName.Equals("About") ? "active" : "")">@TituloEnum.TITULO_SOBRE</a>
+                <a asp-area="" asp-page="/Sobre" class="nav-item nav-link @(currentCshtmlName.Equals("Sobre") ? "active" : "")">@TituloEnum.TITULO_SOBRE</a>
                 <a asp-area="" asp-page="/Services" class="nav-item nav-link @(currentCshtmlName.Equals("Services") ? "active" : "")">@TituloEnum.TITULO_SERVICO</a>
-                <a asp-area="" asp-page="/Contato" class="nav-item nav-link @(currentCshtmlName.Equals("Contact") ? "active" : "")">@TituloEnum.TITULO_CONTATO</a>
-                <a href="https://controlweb.severotech.com.br" class="nav-item nav-link" target="_blank">ControlWeb</a>
-                <a href="https://pontoonline.severotech.com.br" class="nav-item nav-link" target="_blank">Ponto Online</a>
+                <a asp-area="" asp-page="/Contato" class="nav-item nav-link @(currentCshtmlName.Equals("Contato") ? "active" : "")">@TituloEnum.TITULO_CONTATO</a>
             </div>
-            <butaton type="button" class="btn text-primary ms-3" data-bs-toggle="modal" data-bs-target="#searchModal"><i class="fa fa-search"></i></butaton>
+            <butaton type="button" class="btn text-green-severotech ms-3" data-bs-toggle="modal" data-bs-target="#searchModal"><i class="fa fa-search"></i></butaton>
             
         </div>
     </nav>
