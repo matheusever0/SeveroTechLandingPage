@@ -1,0 +1,35 @@
+﻿/* =========================================================================
+   SEVEROTECH MICRO-INTERACTIONS - AnimaÃ§Ãµes sutis e envolventes
+   ========================================================================= */
+
+.reveal-on-scroll {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: all 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.reveal-on-scroll.revealed {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.stagger-delay-1 { transition-delay: 0.1s; }
+.stagger-delay-2 { transition-delay: 0.2s; }
+.stagger-delay-3 { transition-delay: 0.3s; }
+
+.btn-magnetic {
+  position: relative;
+  transition: var(--transition-all);
+}
+
+.btn-magnetic:hover {
+  transform: scale(1.05);
+}
+
+.hover-lift {
+  transition: var(--transition-all);
+}
+
+.hover-lift:hover {
+  transform: translateY(-4px);
+}

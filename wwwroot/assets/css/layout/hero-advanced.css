@@ -1,0 +1,112 @@
+﻿/* =========================================================================
+   SEVEROTECH ADVANCED HERO - Hero section com animaÃ§Ãµes avanÃ§adas
+   ========================================================================= */
+
+.hero-advanced {
+  position: relative;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--gradient-hero);
+  overflow: hidden;
+  isolation: isolate;
+}
+
+/* Background animado */
+.hero-advanced::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: 
+    radial-gradient(circle at 20% 80%, rgba(34, 197, 94, 0.1) 0%, transparent 50%),
+    radial-gradient(circle at 80% 20%, rgba(34, 197, 94, 0.15) 0%, transparent 50%),
+    linear-gradient(135deg, transparent 0%, rgba(255,255,255,0.05) 100%);
+  animation: backgroundFlow 20s ease-in-out infinite;
+  z-index: -1;
+}
+
+@keyframes backgroundFlow {
+  0%, 100% { 
+    background-position: 0% 50%, 100% 50%, 0% 0%;
+    opacity: 1;
+  }
+  50% { 
+    background-position: 100% 50%, 0% 50%, 100% 100%;
+    opacity: 0.8;
+  }
+}
+
+.hero-content-advanced {
+  position: relative;
+  z-index: 2;
+  text-align: center;
+  max-width: 900px;
+  padding: var(--space-8);
+}
+
+.hero-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-4);
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-backdrop);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-full);
+  color: rgba(255, 255, 255, 0.9);
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  margin-bottom: var(--space-6);
+  animation: slideInDown 0.8s ease-out 0.2s both;
+}
+
+.hero-title-advanced {
+  font-size: clamp(2.5rem, 8vw, 5rem);
+  font-weight: 800;
+  color: white;
+  margin-bottom: var(--space-6);
+  line-height: 1.1;
+  animation: slideInUp 1s ease-out 0.4s both;
+}
+
+.hero-subtitle-advanced {
+  font-size: var(--font-size-xl);
+  color: rgba(255, 255, 255, 0.85);
+  margin-bottom: var(--space-8);
+  line-height: 1.6;
+  animation: slideInUp 1s ease-out 0.6s both;
+}
+
+.hero-cta-group {
+  display: flex;
+  gap: var(--space-4);
+  justify-content: center;
+  flex-wrap: wrap;
+  animation: slideInUp 1s ease-out 0.8s both;
+}
+
+@keyframes slideInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
