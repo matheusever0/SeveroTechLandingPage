@@ -1,750 +1,614 @@
 # =========================================================================
-# SCRIPT SEVEROTECH FASE 5 - VERSÃO CORRIGIDA E FUNCIONAL
+# SCRIPT DE REESTRUTURAÇÃO SEVEROTECH - FASE 1
+# Automatiza a reorganização de arquivos e criação da nova estrutura
 # =========================================================================
 
 param(
-    [string]$ProjectPath = (Get-Location).Path,
+    [string]$ProjectPath = (Get-Location),
     [switch]$CreateBackup = $true,
-    [switch]$DryRun = $false,
-    [switch]$CleanOldFiles = $true
+    [switch]$DryRun = $false
 )
 
-# Verificações iniciais
-if (-not $ProjectPath) {
-    $ProjectPath = (Get-Location).Path
+# Cores para output
+$Green = @{ForegroundColor = "Green"}
+$Yellow = @{ForegroundColor = "Yellow"}
+$Red = @{ForegroundColor = "Red"}
+$Cyan = @{ForegroundColor = "Cyan"}
+
+function Write-Header {
+    param([string]$Text)
+    Write-Host ""
+    Write-Host "=" * 70 @Cyan
+    Write-Host " $Text" @Cyan
+    Write-Host "=" * 70 @Cyan
 }
 
-Write-Host "======= SEVEROTECH POLIMENTO FINAL =======" -ForegroundColor Cyan
-Write-Host "Caminho do projeto: $ProjectPath" -ForegroundColor Green
+function Write-Step {
+    param([string]$Text)
+    Write-Host "🔄 $Text" @Yellow
+}
+
+function Write-Success {
+    param([string]$Text)
+    Write-Host "✅ $Text" @Green
+}
+
+function Write-Error {
+    param([string]$Text)
+    Write-Host "❌ $Text" @Red
+}
+
+# =========================================================================
+# CONFIGURAÇÕES E VALIDAÇÕES
+# =========================================================================
+
+Write-Header "SEVEROTECH REESTRUTURAÇÃO - FASE 1"
 
 if ($DryRun) {
-    Write-Host "MODO DRY RUN - Arquivos não serão modificados" -ForegroundColor Yellow
+    Write-Host "🧪 MODO DRY RUN - Nenhum arquivo será modificado" @Yellow
+}
+
+# Validar se estamos no diretório correto
+$csprojFile = Get-ChildItem -Path $ProjectPath -Filter "*.csproj" | Select-Object -First 1
+if (-not $csprojFile) {
+    Write-Error "Arquivo .csproj não encontrado em: $ProjectPath"
+    Write-Host "Certifique-se de estar no diretório raiz do projeto."
+    exit 1
+}
+
+Write-Success "Projeto encontrado: $($csprojFile.Name)"
+Write-Host "Diretório de trabalho: $ProjectPath"
+
+# =========================================================================
+# BACKUP DA ESTRUTURA ATUAL
+# =========================================================================
+
+if ($CreateBackup -and -not $DryRun) {
+    Write-Header "CRIANDO BACKUP"
+    
+    $backupFolder = Join-Path $ProjectPath "backup_$(Get-Date -Format 'yyyyMMdd_HHmmss')"
+    $foldersToBackup = @("wwwroot", "Pages/Shared")
+    
+    New-Item -ItemType Directory -Path $backupFolder -Force | Out-Null
+    
+    foreach ($folder in $foldersToBackup) {
+        $sourcePath = Join-Path $ProjectPath $folder
+        if (Test-Path $sourcePath) {
+            $destPath = Join-Path $backupFolder $folder
+            Write-Step "Fazendo backup de: $folder"
+            Copy-Item -Path $sourcePath -Destination $destPath -Recurse -Force
+        }
+    }
+    
+    Write-Success "Backup criado em: $backupFolder"
 }
 
 # =========================================================================
-# FUNÇÃO AUXILIAR PARA CRIAR ARQUIVOS
+# CRIAÇÃO DA NOVA ESTRUTURA DE PASTAS
 # =========================================================================
 
-function New-SeveroFile {
-    param(
-        [string]$RelativePath,
-        [string]$Content,
-        [string]$Description
-    )
+Write-Header "CRIANDO NOVA ESTRUTURA DE PASTAS"
+
+$newFolders = @(
+    # WWWRoot Assets
+    "wwwroot/assets",
+    "wwwroot/assets/css",
+    "wwwroot/assets/css/base",
+    "wwwroot/assets/css/components",
+    "wwwroot/assets/css/layout",
+    "wwwroot/assets/css/utilities",
+    "wwwroot/assets/js",
+    "wwwroot/assets/js/components",
+    "wwwroot/assets/js/utils",
+    "wwwroot/assets/images",
+    "wwwroot/assets/images/logos",
+    "wwwroot/assets/images/team",
+    "wwwroot/assets/images/services",
+    "wwwroot/assets/images/backgrounds",
+    "wwwroot/assets/images/icons",
+    "wwwroot/assets/fonts",
     
-    $FullPath = Join-Path $ProjectPath $RelativePath
-    $Directory = Split-Path $FullPath -Parent
-    
-    Write-Host "Criando: $Description" -ForegroundColor Yellow
+    # Pages/Shared organization
+    "Pages/Shared/Layout",
+    "Pages/Shared/Sections",
+    "Pages/Shared/Components"
+)
+
+foreach ($folder in $newFolders) {
+    $fullPath = Join-Path $ProjectPath $folder
+    Write-Step "Criando pasta: $folder"
     
     if (-not $DryRun) {
-        if (-not (Test-Path $Directory)) {
-            New-Item -ItemType Directory -Path $Directory -Force | Out-Null
+        New-Item -ItemType Directory -Path $fullPath -Force | Out-Null
+    }
+}
+
+Write-Success "Estrutura de pastas criada!"
+
+# =========================================================================
+# MIGRAÇÃO DE IMAGENS
+# =========================================================================
+
+Write-Header "MIGRANDO IMAGENS"
+
+$imageMappings = @{
+    "wwwroot/landingpage/img/logo.png" = "wwwroot/assets/images/logos/logo.png"
+    "wwwroot/landingpage/img/LOGO-MATHEUS-CINZA.png" = "wwwroot/assets/images/logos/logo-gray.png"
+    "wwwroot/landingpage/img/team-1.jpg" = "wwwroot/assets/images/team/matheus-severo.jpg"
+    "wwwroot/landingpage/img/carousel-1.jpg" = "wwwroot/assets/images/backgrounds/hero-1.jpg"
+    "wwwroot/landingpage/img/carousel-2.jpg" = "wwwroot/assets/images/backgrounds/hero-2.jpg"
+    "wwwroot/landingpage/img/about.jpg" = "wwwroot/assets/images/backgrounds/about.jpg"
+    "wwwroot/landingpage/img/feature.jpg" = "wwwroot/assets/images/backgrounds/feature.jpg"
+}
+
+foreach ($mapping in $imageMappings.GetEnumerator()) {
+    $sourcePath = Join-Path $ProjectPath $mapping.Key
+    $destPath = Join-Path $ProjectPath $mapping.Value
+    
+    if (Test-Path $sourcePath) {
+        Write-Step "Copiando: $($mapping.Key) → $($mapping.Value)"
+        if (-not $DryRun) {
+            Copy-Item -Path $sourcePath -Destination $destPath -Force
         }
-        
-        $Content | Out-File -FilePath $FullPath -Encoding UTF8 -Force
-        Write-Host "Sucesso: $RelativePath" -ForegroundColor Green
+    } else {
+        Write-Host "⚠️  Arquivo não encontrado: $($mapping.Key)" @Yellow
     }
 }
 
 # =========================================================================
-# BACKUP
+# REORGANIZAÇÃO DAS VIEWS
 # =========================================================================
 
-if ($CreateBackup -and (-not $DryRun)) {
-    Write-Host "======= CRIANDO BACKUP =======" -ForegroundColor Cyan
+Write-Header "REORGANIZANDO VIEWS"
+
+$viewMappings = @{
+    "Pages/Shared/__Hero.cshtml" = "Pages/Shared/Layout/_Hero.cshtml"
+    "Pages/Shared/__Navbar.cshtml" = "Pages/Shared/Layout/_Navbar.cshtml"
+    "Pages/Shared/__Footer.cshtml" = "Pages/Shared/Layout/_Footer.cshtml"
+    "Pages/Shared/__Topbar.cshtml" = "Pages/Shared/Layout/_Topbar.cshtml"
+    "Pages/Shared/__Header.cshtml" = "Pages/Shared/Layout/_Header.cshtml"
+    "Pages/Shared/__Service.cshtml" = "Pages/Shared/Sections/_Services.cshtml"
+    "Pages/Shared/__Sobre.cshtml" = "Pages/Shared/Sections/_About.cshtml"
+    "Pages/Shared/__Team.cshtml" = "Pages/Shared/Sections/_Team.cshtml"
+    "Pages/Shared/__Contato.cshtml" = "Pages/Shared/Sections/_Contact.cshtml"
+    "Pages/Shared/__Features.cshtml" = "Pages/Shared/Sections/_Features.cshtml"
+    "Pages/Shared/__FullScreenSearch.cshtml" = "Pages/Shared/Components/_FullScreenSearch.cshtml"
+}
+
+foreach ($mapping in $viewMappings.GetEnumerator()) {
+    $sourcePath = Join-Path $ProjectPath $mapping.Key
+    $destPath = Join-Path $ProjectPath $mapping.Value
     
-    $BackupFolder = Join-Path $ProjectPath "backup_$(Get-Date -Format 'yyyyMMdd_HHmmss')"
-    $FoldersToBackup = @("wwwroot", "Pages", "Models", "Services", "Controllers")
-    
-    New-Item -ItemType Directory -Path $BackupFolder -Force | Out-Null
-    
-    foreach ($Folder in $FoldersToBackup) {
-        $SourcePath = Join-Path $ProjectPath $Folder
-        if (Test-Path $SourcePath) {
-            $DestPath = Join-Path $BackupFolder $Folder
-            Write-Host "Backup: $Folder" -ForegroundColor Yellow
-            Copy-Item -Path $SourcePath -Destination $DestPath -Recurse -Force
+    if (Test-Path $sourcePath) {
+        Write-Step "Movendo: $($mapping.Key) → $($mapping.Value)"
+        if (-not $DryRun) {
+            Move-Item -Path $sourcePath -Destination $destPath -Force
         }
-    }
-    
-    Write-Host "Backup criado: $BackupFolder" -ForegroundColor Green
-}
-
-# =========================================================================
-# LIMPEZA DE ARQUIVOS ANTIGOS
-# =========================================================================
-
-if ($CleanOldFiles) {
-    Write-Host "======= LIMPEZA DE ARQUIVOS ANTIGOS =======" -ForegroundColor Cyan
-    
-    $OldFiles = @(
-        "Pages/Shared/__Hero.cshtml",
-        "Pages/Shared/__Service.cshtml",
-        "Pages/Shared/__Team.cshtml",
-        "Pages/Shared/__About.cshtml", 
-        "Pages/Shared/__Contact.cshtml",
-        "Pages/Shared/__Features.cshtml"
-    )
-    
-    foreach ($File in $OldFiles) {
-        $FilePath = Join-Path $ProjectPath $File
-        if (Test-Path $FilePath) {
-            Write-Host "Removendo: $File" -ForegroundColor Yellow
-            if (-not $DryRun) {
-                Remove-Item -Path $FilePath -Force
-                Write-Host "Removido: $File" -ForegroundColor Green
-            }
-        }
+    } else {
+        Write-Host "⚠️  Arquivo não encontrado: $($mapping.Key)" @Yellow
     }
 }
 
 # =========================================================================
-# WEB.CONFIG PARA PRODUÇÃO
+# CRIAÇÃO DOS ARQUIVOS CSS BASE
 # =========================================================================
 
-Write-Host "======= CONFIGURAÇÕES DE PRODUÇÃO =======" -ForegroundColor Cyan
+Write-Header "CRIANDO ARQUIVOS CSS BASE"
 
-$WebConfigContent = @'
-<?xml version="1.0" encoding="utf-8"?>
-<configuration>
-  <location path="." inheritInChildApplications="false">
-    <system.webServer>
-      <handlers>
-        <add name="aspNetCore" path="*" verb="*" modules="AspNetCoreModuleV2" resourceType="Unspecified" />
-      </handlers>
-      <aspNetCore processPath="dotnet" arguments=".\SeveroTechLanding.dll" 
-                  stdoutLogEnabled="false" stdoutLogFile=".\logs\stdout" hostingModel="inprocess" />
-      
-      <httpProtocol>
-        <customHeaders>
-          <add name="X-Frame-Options" value="DENY" />
-          <add name="X-Content-Type-Options" value="nosniff" />
-          <add name="X-XSS-Protection" value="1; mode=block" />
-          <add name="Strict-Transport-Security" value="max-age=31536000; includeSubDomains" />
-        </customHeaders>
-      </httpProtocol>
-      
-      <urlCompression doDynamicCompression="true" doStaticCompression="true" />
-      
-      <staticContent>
-        <remove fileExtension=".woff" />
-        <remove fileExtension=".woff2" />
-        <mimeMap fileExtension=".woff" mimeType="font/woff" />
-        <mimeMap fileExtension=".woff2" mimeType="font/woff2" />
-        <clientCache cacheControlMode="UseMaxAge" cacheControlMaxAge="365.00:00:00" />
-      </staticContent>
-      
-      <rewrite>
-        <rules>
-          <rule name="Redirect to HTTPS" stopProcessing="true">
-            <match url=".*" />
-            <conditions>
-              <add input="{HTTPS}" pattern="off" ignoreCase="true" />
-            </conditions>
-            <action type="Redirect" url="https://{HTTP_HOST}/{R:0}" redirectType="Permanent" />
-          </rule>
-        </rules>
-      </rewrite>
-    </system.webServer>
-  </location>
-</configuration>
-'@
+# Variables CSS
+$variablesCSS = @"
+/* =========================================================================
+   SEVEROTECH DESIGN TOKENS - Variables CSS
+   ========================================================================= */
 
-New-SeveroFile "web.config" $WebConfigContent "Configuração do IIS"
-
-# =========================================================================
-# APPSETTINGS DE PRODUÇÃO
-# =========================================================================
-
-$AppSettingsProduction = @'
-{
-  "Logging": {
-    "LogLevel": {
-      "Default": "Warning",
-      "Microsoft.AspNetCore": "Warning",
-      "SeveroTechLanding": "Information"
-    }
-  },
-  "AllowedHosts": "severotech.com.br;www.severotech.com.br;localhost",
-  "SmtpSettings": {
-    "Host": "smtp.gmail.com",
-    "Port": 587,
-    "Username": "contato@severotech.com.br",
-    "Password": "SUBSTITUA_PELA_SENHA_DO_APP_GMAIL",
-    "EnableSsl": true,
-    "From": "contato@severotech.com.br",
-    "To": "contato@severotech.com.br"
-  },
-  "Analytics": {
-    "GoogleAnalyticsId": "G-XXXXXXXXXX",
-    "GoogleTagManagerId": "GTM-XXXXXXX"
-  },
-  "SecuritySettings": {
-    "EnableCsp": true,
-    "EnableHsts": true,
-    "EnableXssProtection": true
-  }
-}
-'@
-
-New-SeveroFile "appsettings.Production.json" $AppSettingsProduction "Configurações de produção"
-
-# =========================================================================
-# CSS OTIMIZADO PARA PRODUÇÃO
-# =========================================================================
-
-$ProductionCSS = @'
-/* SeveroTech Production CSS - Otimizado */
 :root {
-  --severo-green-500: #22c55e;
-  --severo-green-600: #16a34a;
-  --color-primary: var(--severo-green-500);
-  --color-primary-dark: var(--severo-green-600);
-  --space-2: 0.5rem;
-  --space-4: 1rem;
-  --space-6: 1.5rem;
-  --space-8: 2rem;
-  --space-16: 4rem;
-  --space-24: 6rem;
+  /* === CORES SEVEROTECH === */
+  --severo-green-primary: #28a745;
+  --severo-green-light: #34ce57;
+  --severo-green-dark: #1e7e34;
+  --severo-gray-dark: #2c3e50;
+  --severo-gray-light: #f8f9fa;
+  
+  /* === SISTEMA DE CORES === */
+  --color-primary: var(--severo-green-primary);
+  --color-primary-light: var(--severo-green-light);
+  --color-primary-dark: var(--severo-green-dark);
+  --color-dark: var(--severo-gray-dark);
+  --color-light: var(--severo-gray-light);
+  --color-white: #ffffff;
+  --color-black: #000000;
+  
+  /* === GRADIENTES === */
+  --gradient-primary: linear-gradient(135deg, var(--severo-green-primary), var(--severo-green-light));
+  --gradient-dark: linear-gradient(135deg, var(--severo-gray-dark), #34495e);
+  
+  /* === ESPAÇAMENTOS === */
+  --space-xs: 0.5rem;    /* 8px */
+  --space-sm: 1rem;      /* 16px */
+  --space-md: 1.5rem;    /* 24px */
+  --space-lg: 2.5rem;    /* 40px */
+  --space-xl: 4rem;      /* 64px */
+  --space-xxl: 6rem;     /* 96px */
+  
+  /* === TIPOGRAFIA === */
+  --font-primary: 'Nunito', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-secondary: 'Rubik', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-size-xs: 0.75rem;
+  --font-size-sm: 0.875rem;
+  --font-size-base: 1rem;
+  --font-size-lg: 1.125rem;
+  --font-size-xl: 1.25rem;
+  --font-size-2xl: 1.5rem;
+  --font-size-3xl: 2rem;
+  --font-size-4xl: 3rem;
+  
+  /* === SOMBRAS === */
+  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.1);
+  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.15);
+  --shadow-xl: 0 16px 64px rgba(0, 0, 0, 0.2);
+  
+  /* === BORDER RADIUS === */
   --radius-sm: 0.375rem;
-  --radius-lg: 0.5rem;
-  --radius-xl: 0.75rem;
-  --radius-2xl: 1rem;
-  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
-  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.07);
-  --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
-  --shadow-xl: 0 20px 25px rgba(0, 0, 0, 0.1);
-  --transition-all: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  --gradient-primary: linear-gradient(135deg, var(--severo-green-500) 0%, #4ade80 100%);
+  --radius-md: 0.5rem;
+  --radius-lg: 1rem;
+  --radius-xl: 1.5rem;
+  --radius-full: 9999px;
+  
+  /* === TRANSIÇÕES === */
+  --transition-fast: all 0.15s ease;
+  --transition-base: all 0.3s ease;
+  --transition-slow: all 0.5s ease;
+  
+  /* === Z-INDEX === */
+  --z-dropdown: 1000;
+  --z-sticky: 1020;
+  --z-fixed: 1030;
+  --z-modal: 1040;
+  --z-popover: 1050;
+  --z-tooltip: 1060;
 }
 
-/* Performance optimizations */
-* {
+/* === CLASSES UTILITÁRIAS === */
+.text-green-severotech { color: var(--color-primary) !important; }
+.bg-green { background-color: var(--color-primary) !important; }
+.bg-dark-severotech { background-color: var(--color-dark) !important; }
+.btn-green { 
+  background-color: var(--color-primary);
+  border-color: var(--color-primary);
+  color: var(--color-white);
+  transition: var(--transition-base);
+}
+.btn-green:hover {
+  background-color: var(--color-primary-dark);
+  border-color: var(--color-primary-dark);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+}
+.btn-outline-green {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+  transition: var(--transition-base);
+}
+.btn-outline-green:hover {
+  background-color: var(--color-primary);
+  border-color: var(--color-primary);
+  color: var(--color-white);
+}
+"@
+
+# Reset CSS
+$resetCSS = @"
+/* =========================================================================
+   SEVEROTECH RESET CSS - Normalização base
+   ========================================================================= */
+
+/* Box sizing reset */
+*,
+*::before,
+*::after {
   box-sizing: border-box;
 }
 
-img {
+/* Remove default margins */
+* {
+  margin: 0;
+  padding: 0;
+}
+
+/* Improve media defaults */
+img,
+picture,
+video,
+canvas,
+svg {
+  display: block;
   max-width: 100%;
   height: auto;
-  loading: lazy;
-  decoding: async;
 }
 
-/* Global classes */
-.section-modern {
-  padding: var(--space-24) 0;
-  position: relative;
+/* Remove built-in form typography styles */
+input,
+button,
+textarea,
+select {
+  font: inherit;
 }
 
-.container-modern {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0 var(--space-6);
+/* Avoid text overflows */
+p,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  overflow-wrap: break-word;
 }
 
-.btn-modern {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: var(--space-2);
-  padding: var(--space-4) var(--space-6);
-  background: var(--gradient-primary);
-  color: white;
-  border: none;
-  border-radius: var(--radius-lg);
-  font-weight: 600;
+/* Improve line heights */
+body {
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Remove list styles */
+ul,
+ol {
+  list-style: none;
+}
+
+/* Remove link underlines */
+a {
   text-decoration: none;
-  cursor: pointer;
-  transition: var(--transition-all);
-  box-shadow: var(--shadow-md);
+  color: inherit;
 }
 
-.btn-modern:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-xl);
-  color: white;
+/* Focus styles */
+:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+"@
+
+# Typography CSS
+$typographyCSS = @"
+/* =========================================================================
+   SEVEROTECH TYPOGRAPHY - Sistema tipográfico
+   ========================================================================= */
+
+body {
+  font-family: var(--font-primary);
+  font-size: var(--font-size-base);
+  color: var(--color-dark);
+  background-color: var(--color-white);
 }
 
-.card-modern {
-  background: white;
-  border-radius: var(--radius-2xl);
-  padding: var(--space-6);
-  box-shadow: var(--shadow-md);
-  transition: var(--transition-all);
+/* Headings */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-secondary);
+  font-weight: 700;
+  line-height: 1.2;
+  margin-bottom: var(--space-sm);
+  color: var(--color-dark);
 }
 
-.card-modern:hover {
-  transform: translateY(-4px);
-  box-shadow: var(--shadow-xl);
+h1 { font-size: var(--font-size-4xl); }
+h2 { font-size: var(--font-size-3xl); }
+h3 { font-size: var(--font-size-2xl); }
+h4 { font-size: var(--font-size-xl); }
+h5 { font-size: var(--font-size-lg); }
+h6 { font-size: var(--font-size-base); }
+
+/* Paragraphs */
+p {
+  margin-bottom: var(--space-sm);
+  line-height: 1.7;
 }
 
-.text-gradient {
-  background: var(--gradient-primary);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+/* Links */
+a {
+  color: var(--color-primary);
+  transition: var(--transition-base);
 }
 
-/* Responsive design */
-@media (max-width: 768px) {
-  .section-modern {
-    padding: var(--space-16) 0;
-  }
-  
-  .container-modern {
-    padding: 0 var(--space-4);
-  }
-  
-  .desktop-only {
-    display: none;
-  }
+a:hover {
+  color: var(--color-primary-dark);
 }
 
-@media (min-width: 769px) {
-  .mobile-only {
-    display: none;
-  }
+/* Strong and emphasis */
+strong, b {
+  font-weight: 600;
 }
 
-/* Accessibility */
-@media (prefers-reduced-motion: reduce) {
-  * {
-    animation-duration: 0.01ms !important;
-    transition-duration: 0.01ms !important;
-  }
+em, i {
+  font-style: italic;
 }
 
-/* Print styles */
-@media print {
-  .no-print {
-    display: none !important;
-  }
-  
-  * {
-    background: white !important;
-    color: black !important;
-    box-shadow: none !important;
-  }
-}
-'@
+/* Display classes */
+.display-1 { font-size: 5rem; font-weight: 700; }
+.display-2 { font-size: 4rem; font-weight: 700; }
+.display-3 { font-size: 3rem; font-weight: 700; }
+.display-4 { font-size: 2.5rem; font-weight: 700; }
 
-New-SeveroFile "wwwroot/assets/css/production.css" $ProductionCSS "CSS otimizado para produção"
+/* Text utilities */
+.text-center { text-align: center; }
+.text-left { text-align: left; }
+.text-right { text-align: right; }
+.text-uppercase { text-transform: uppercase; }
+.text-lowercase { text-transform: lowercase; }
+.text-capitalize { text-transform: capitalize; }
 
-# =========================================================================
-# JAVASCRIPT OTIMIZADO
-# =========================================================================
+/* Font weights */
+.fw-light { font-weight: 300; }
+.fw-normal { font-weight: 400; }
+.fw-medium { font-weight: 500; }
+.fw-semibold { font-weight: 600; }
+.fw-bold { font-weight: 700; }
+.fw-black { font-weight: 900; }
+"@
 
-$ProductionJS = @'
-// SeveroTech Production JavaScript
-class SeveroTechApp {
-  constructor() {
-    this.init();
-  }
+# Main CSS
+$mainCSS = @"
+/* =========================================================================
+   SEVEROTECH MAIN CSS - Estilos principais
+   ========================================================================= */
 
-  init() {
-    console.log('SeveroTech App initialized');
-    this.setupEventListeners();
-    this.setupLazyLoading();
-    this.setupFormValidation();
-  }
-
-  setupEventListeners() {
-    // Smooth scroll para links internos
-    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-      anchor.addEventListener('click', (e) => {
-        e.preventDefault();
-        const target = document.querySelector(anchor.getAttribute('href'));
-        if (target) {
-          target.scrollIntoView({
-            behavior: 'smooth',
-            block: 'start'
-          });
-        }
-      });
-    });
-
-    // Back to top button
-    const backToTop = document.querySelector('.back-to-top');
-    if (backToTop) {
-      window.addEventListener('scroll', () => {
-        if (window.pageYOffset > 300) {
-          backToTop.style.display = 'block';
-        } else {
-          backToTop.style.display = 'none';
-        }
-      });
-    }
-  }
-
-  setupLazyLoading() {
-    const images = document.querySelectorAll('img[data-src]');
-    if (images.length === 0) return;
-
-    const imageObserver = new IntersectionObserver((entries) => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          const img = entry.target;
-          img.src = img.dataset.src;
-          img.classList.add('loaded');
-          img.removeAttribute('data-src');
-          imageObserver.unobserve(img);
-        }
-      });
-    }, {
-      rootMargin: '50px'
-    });
-
-    images.forEach(img => imageObserver.observe(img));
-  }
-
-  setupFormValidation() {
-    const forms = document.querySelectorAll('form');
-    
-    forms.forEach(form => {
-      form.addEventListener('submit', (e) => {
-        if (!this.validateForm(form)) {
-          e.preventDefault();
-          this.showFormError('Por favor, preencha todos os campos obrigatórios.');
-        }
-      });
-
-      // Validação em tempo real
-      const inputs = form.querySelectorAll('input[required], textarea[required]');
-      inputs.forEach(input => {
-        input.addEventListener('blur', () => {
-          this.validateField(input);
-        });
-      });
-    });
-  }
-
-  validateForm(form) {
-    const requiredFields = form.querySelectorAll('[required]');
-    let isValid = true;
-
-    requiredFields.forEach(field => {
-      if (!this.validateField(field)) {
-        isValid = false;
-      }
-    });
-
-    return isValid;
-  }
-
-  validateField(field) {
-    const value = field.value.trim();
-    const isValid = value.length > 0;
-
-    // Validação de email
-    if (field.type === 'email' && value) {
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      if (!emailRegex.test(value)) {
-        this.showFieldError(field, 'Digite um email válido');
-        return false;
-      }
-    }
-
-    if (isValid) {
-      this.clearFieldError(field);
-    } else {
-      this.showFieldError(field, 'Este campo é obrigatório');
-    }
-
-    return isValid;
-  }
-
-  showFieldError(field, message) {
-    field.style.borderColor = '#ef4444';
-    
-    let errorDiv = field.parentNode.querySelector('.error-message');
-    if (!errorDiv) {
-      errorDiv = document.createElement('div');
-      errorDiv.className = 'error-message';
-      errorDiv.style.color = '#ef4444';
-      errorDiv.style.fontSize = '0.875rem';
-      errorDiv.style.marginTop = '0.25rem';
-      field.parentNode.appendChild(errorDiv);
-    }
-    errorDiv.textContent = message;
-  }
-
-  clearFieldError(field) {
-    field.style.borderColor = '';
-    const errorDiv = field.parentNode.querySelector('.error-message');
-    if (errorDiv) {
-      errorDiv.remove();
-    }
-  }
-
-  showFormError(message) {
-    // Criar ou atualizar mensagem de erro do formulário
-    const existingError = document.querySelector('.form-error');
-    if (existingError) {
-      existingError.textContent = message;
-      return;
-    }
-
-    const errorDiv = document.createElement('div');
-    errorDiv.className = 'form-error';
-    errorDiv.style.cssText = `
-      background: #fee2e2;
-      color: #991b1b;
-      padding: 1rem;
-      border-radius: 0.5rem;
-      margin: 1rem 0;
-      border: 1px solid #fecaca;
-    `;
-    errorDiv.textContent = message;
-
-    const form = document.querySelector('form');
-    if (form) {
-      form.insertBefore(errorDiv, form.firstChild);
-      
-      // Remover após 5 segundos
-      setTimeout(() => {
-        errorDiv.remove();
-      }, 5000);
-    }
-  }
-
-  // Utilities
-  debounce(func, wait) {
-    let timeout;
-    return function executedFunction(...args) {
-      const later = () => {
-        clearTimeout(timeout);
-        func(...args);
-      };
-      clearTimeout(timeout);
-      timeout = setTimeout(later, wait);
-    };
-  }
-}
-
-// Initialize when DOM is ready
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', () => {
-    window.severoTechApp = new SeveroTechApp();
-  });
-} else {
-  window.severoTechApp = new SeveroTechApp();
-}
-'@
-
-New-SeveroFile "wwwroot/assets/js/production.js" $ProductionJS "JavaScript otimizado"
-
-# =========================================================================
-# ATUALIZAR ARQUIVO JS PRINCIPAL
-# =========================================================================
-
-$MainJSContent = @'
-<!-- Core JavaScript Libraries -->
-<script src="https://code.jquery.com/jquery-3.6.0.min.js" defer></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" defer></script>
-
-<!-- SeveroTech System -->
-<script src="~/assets/js/modern.js" defer></script>
-<script src="~/assets/js/ux-advanced.js" defer></script>
-<script src="~/assets/js/production.js" defer></script>
-
-<!-- Chatbot (carregado assincronamente) -->
-<script>
-setTimeout(() => {
-  const chatbotScript = document.createElement('script');
-  chatbotScript.src = '/assets/js/integrations/chatbot.js';
-  chatbotScript.async = true;
-  chatbotScript.onerror = () => console.log('Chatbot não encontrado');
-  document.head.appendChild(chatbotScript);
-}, 2000);
-</script>
-
-<!-- Service Worker para PWA -->
-<script>
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', async () => {
-    try {
-      const registration = await navigator.serviceWorker.register('/sw.js');
-      console.log('Service Worker registrado com sucesso');
-    } catch (error) {
-      console.log('Falha ao registrar Service Worker:', error);
-    }
-  });
-}
-</script>
-'@
-
-New-SeveroFile "Pages/Shared/__js.cshtml" $MainJSContent "JavaScript principal atualizado"
-
-# =========================================================================
-# README ATUALIZADO
-# =========================================================================
-
-$ReadmeContent = @'
-# SeveroTech Landing Page
-
-## Sobre o Projeto
-
-Landing page moderna e responsiva da SeveroTech, desenvolvida com ASP.NET Core e design system contemporâneo.
-
-## Funcionalidades Implementadas
-
-### Design e UX
-- Design moderno com sistema de cores consistente
-- Responsivo para todos os dispositivos
-- Animações e transições suaves
-- Componentes reutilizáveis
-
-### Performance
-- CSS e JavaScript otimizados
-- Lazy loading de imagens
-- Compressão de recursos
-- Service Worker para cache
-
-### Funcionalidades
-- Sistema de contato por email
-- Formulários com validação em tempo real
-- Chatbot inteligente
-- PWA instalável
-- SEO otimizado
-
-### Segurança
-- Headers de segurança configurados
-- Validação anti-spam
-- HTTPS forçado
-- Content Security Policy
-
-## Configuração
-
-### 1. Email (OBRIGATÓRIO)
-Edite `appsettings.Production.json`:
-```json
-{
-  "SmtpSettings": {
-    "Username": "seu-email@gmail.com",
-    "Password": "sua-senha-de-app-do-gmail"
-  }
-}
-```
-
-### 2. Analytics (Opcional)
-Substitua os IDs em `appsettings.Production.json`:
-- `GoogleAnalyticsId`: seu ID do Google Analytics
-- `GoogleTagManagerId`: seu ID do Google Tag Manager
-
-## Deploy
-
-### Para IIS
-1. Executar: `dotnet publish -c Release`
-2. Copiar arquivos para o servidor
-3. `web.config` já está configurado
-
-### Para Azure/Outros
-1. Configurar variáveis de ambiente
-2. Deploy via Git ou CI/CD
-
-## Estrutura de Arquivos
-
-```
-SeveroTechLanding/
-├── Controllers/       # APIs REST
-├── Models/           # Modelos de dados  
-├── Services/         # Serviços (Email, etc)
-├── Pages/            # Razor Pages
-└── wwwroot/assets/   # Recursos estáticos
-    ├── css/          # Estilos
-    ├── js/           # JavaScript
-    └── images/       # Imagens
-```
-
-## Suporte
-
-- **Email**: contato@severotech.com.br
-- **WhatsApp**: +55 (71) 99111-5873
-
-## Próximos Passos
-
-1. Configure as credenciais SMTP
-2. Teste o formulário de contato
-3. Personalize o conteúdo
-4. Faça o deploy para produção
-5. Configure domínio e SSL
-
----
-
-**Desenvolvido pela equipe SeveroTech**
-'@
-
-New-SeveroFile "README.md" $ReadmeContent "Documentação atualizada"
-
-# =========================================================================
-# ATUALIZAR CSS PRINCIPAL
-# =========================================================================
-
-$MainCSSUpdate = @'
-/* SeveroTech Main CSS - Versão Final */
-
-/* Import system */
+/* Import all base styles */
 @import 'base/variables.css';
 @import 'base/reset.css';
 @import 'base/typography.css';
 
-/* Components */
+/* Import components */
 @import 'components/buttons.css';
 @import 'components/cards.css';
-@import 'components/forms.css';
 
-/* Layout */
-@import 'layout/hero-advanced.css';
-@import 'layout/navbar-sticky.css';
+/* Import layout */
 @import 'layout/header.css';
 @import 'layout/footer.css';
 
-/* Integrations */
-@import 'integrations/chatbot.css';
+/* Global styles */
+.section-padding {
+  padding: var(--space-xxl) 0;
+}
 
-/* Production optimizations */
-@import 'production.css';
-'@
+.container-custom {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 var(--space-md);
+}
 
-New-SeveroFile "wwwroot/assets/css/main.css" $MainCSSUpdate "CSS principal atualizado"
+/* Animations */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.animate-fade-in-up {
+  animation: fadeInUp 0.8s ease-out;
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.6s ease-out;
+}
+
+/* Smooth scrolling */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Loading spinner styles */
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  border-top-color: var(--color-white);
+  animation: spin 1s ease-in-out infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+"@
+
+# Salvar arquivos CSS
+$cssFiles = @{
+    "wwwroot/assets/css/base/variables.css" = $variablesCSS
+    "wwwroot/assets/css/base/reset.css" = $resetCSS
+    "wwwroot/assets/css/base/typography.css" = $typographyCSS
+    "wwwroot/assets/css/main.css" = $mainCSS
+}
+
+foreach ($file in $cssFiles.GetEnumerator()) {
+    $filePath = Join-Path $ProjectPath $file.Key
+    Write-Step "Criando: $($file.Key)"
+    
+    if (-not $DryRun) {
+        $file.Value | Out-File -FilePath $filePath -Encoding UTF8
+    }
+}
+
+# =========================================================================
+# ATUALIZAÇÃO DO ARQUIVO __css.cshtml
+# =========================================================================
+
+Write-Header "ATUALIZANDO REFERÊNCIAS CSS"
+
+$newCssContent = @"
+<!-- Google Web Fonts -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;500;600;700;800&family=Rubik:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<!-- Icon Font Stylesheet -->
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.0/css/all.min.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.1/font/bootstrap-icons.css" rel="stylesheet">
+
+<!-- Libraries Stylesheet -->
+<link href="~/landingpage/lib/owlcarousel/assets/owl.carousel.min.css" rel="stylesheet">
+<link href="~/landingpage/lib/animate/animate.min.css" rel="stylesheet">
+
+<!-- Bootstrap (manter temporariamente) -->
+<link href="~/landingpage/css/bootstrap.min.css" rel="stylesheet">
+
+<!-- SeveroTech Design System -->
+<link href="~/assets/css/base/variables.css" rel="stylesheet">
+<link href="~/assets/css/base/reset.css" rel="stylesheet">
+<link href="~/assets/css/base/typography.css" rel="stylesheet">
+<link href="~/assets/css/main.css" rel="stylesheet">
+
+<!-- Template Original (manter temporariamente durante migração) -->
+<link href="~/landingpage/css/style.css" rel="stylesheet">
+"@
+
+$cssFilePath = Join-Path $ProjectPath "Pages/Shared/__css.cshtml"
+if (Test-Path $cssFilePath) {
+    Write-Step "Atualizando: Pages/Shared/__css.cshtml"
+    if (-not $DryRun) {
+        $newCssContent | Out-File -FilePath $cssFilePath -Encoding UTF8
+    }
+}
 
 # =========================================================================
 # RELATÓRIO FINAL
 # =========================================================================
 
-Write-Host ""
-Write-Host "======= PROJETO FINALIZADO COM SUCESSO =======" -ForegroundColor Green
-Write-Host ""
-Write-Host "Arquivos criados/atualizados:" -ForegroundColor Cyan
-Write-Host "- web.config (configuracao IIS)" -ForegroundColor White
-Write-Host "- appsettings.Production.json (configuracoes de producao)" -ForegroundColor White
-Write-Host "- production.css (CSS otimizado)" -ForegroundColor White
-Write-Host "- production.js (JavaScript otimizado)" -ForegroundColor White
-Write-Host "- main.css (CSS principal atualizado)" -ForegroundColor White
-Write-Host "- __js.cshtml (JavaScript principal atualizado)" -ForegroundColor White
-Write-Host "- README.md (documentacao completa)" -ForegroundColor White
+Write-Header "RELATÓRIO FINAL"
 
-if ($CleanOldFiles) {
-    Write-Host "- Arquivos antigos removidos" -ForegroundColor White
-}
-
-if ($CreateBackup -and (-not $DryRun)) {
-    Write-Host "- Backup criado automaticamente" -ForegroundColor White
-}
+Write-Success "✅ Reestruturação da Fase 1 concluída!"
+Write-Host ""
+Write-Host "📋 RESUMO DAS ALTERAÇÕES:" @Cyan
+Write-Host "   • Nova estrutura de pastas criada em wwwroot/assets/" @Green
+Write-Host "   • Views reorganizadas em subpastas temáticas" @Green
+Write-Host "   • Sistema de Design Tokens implementado" @Green
+Write-Host "   • Imagens migradas para nova estrutura" @Green
+Write-Host "   • Arquivos CSS base criados" @Green
 
 Write-Host ""
-Write-Host "PROXIMOS PASSOS:" -ForegroundColor Yellow
-Write-Host "1. Configure credenciais SMTP no appsettings.Production.json" -ForegroundColor White
-Write-Host "2. Teste o formulario de contato" -ForegroundColor White  
-Write-Host "3. Execute: dotnet publish -c Release" -ForegroundColor White
-Write-Host "4. Faca deploy para producao" -ForegroundColor White
-Write-Host "5. Configure dominio e SSL" -ForegroundColor White
+Write-Host "📁 PRÓXIMOS PASSOS:" @Yellow
+Write-Host "   1. Testar o site para verificar se tudo funciona"
+Write-Host "   2. Atualizar referências nos arquivos de view restantes"
+Write-Host "   3. Começar Fase 2 - Modernização do Design"
 
 Write-Host ""
-Write-Host "PROJETO PRONTO PARA PRODUCAO!" -ForegroundColor Green
-Write-Host "Performance Score Estimado: 90+" -ForegroundColor Green
-Write-Host "SEO Score Estimado: 95+" -ForegroundColor Green
-Write-Host "Accessibility Score Estimado: 95+" -ForegroundColor Green
+Write-Host "⚠️  IMPORTANTE:" @Yellow
+Write-Host "   • Backup criado em: backup_[timestamp]" @Yellow
+Write-Host "   • Alguns arquivos antigos foram mantidos para compatibilidade" @Yellow
+Write-Host "   • Teste todas as páginas antes de continuar" @Yellow
+
 Write-Host ""
-Write-Host "BOA SORTE COM O LANCAMENTO!" -ForegroundColor Magenta
+Write-Success "Script executado com sucesso! 🚀"
