@@ -1,0 +1,99 @@
+﻿/* =========================================================================
+   SEVEROTECH DESIGN TOKENS - Variables CSS
+   ========================================================================= */
+
+:root {
+  /* === CORES SEVEROTECH === */
+  --severo-green-primary: #28a745;
+  --severo-green-light: #34ce57;
+  --severo-green-dark: #1e7e34;
+  --severo-gray-dark: #2c3e50;
+  --severo-gray-light: #f8f9fa;
+  
+  /* === SISTEMA DE CORES === */
+  --color-primary: var(--severo-green-primary);
+  --color-primary-light: var(--severo-green-light);
+  --color-primary-dark: var(--severo-green-dark);
+  --color-dark: var(--severo-gray-dark);
+  --color-light: var(--severo-gray-light);
+  --color-white: #ffffff;
+  --color-black: #000000;
+  
+  /* === GRADIENTES === */
+  --gradient-primary: linear-gradient(135deg, var(--severo-green-primary), var(--severo-green-light));
+  --gradient-dark: linear-gradient(135deg, var(--severo-gray-dark), #34495e);
+  
+  /* === ESPAÃ‡AMENTOS === */
+  --space-xs: 0.5rem;    /* 8px */
+  --space-sm: 1rem;      /* 16px */
+  --space-md: 1.5rem;    /* 24px */
+  --space-lg: 2.5rem;    /* 40px */
+  --space-xl: 4rem;      /* 64px */
+  --space-xxl: 6rem;     /* 96px */
+  
+  /* === TIPOGRAFIA === */
+  --font-primary: 'Nunito', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-secondary: 'Rubik', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-size-xs: 0.75rem;
+  --font-size-sm: 0.875rem;
+  --font-size-base: 1rem;
+  --font-size-lg: 1.125rem;
+  --font-size-xl: 1.25rem;
+  --font-size-2xl: 1.5rem;
+  --font-size-3xl: 2rem;
+  --font-size-4xl: 3rem;
+  
+  /* === SOMBRAS === */
+  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.1);
+  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.15);
+  --shadow-xl: 0 16px 64px rgba(0, 0, 0, 0.2);
+  
+  /* === BORDER RADIUS === */
+  --radius-sm: 0.375rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 1rem;
+  --radius-xl: 1.5rem;
+  --radius-full: 9999px;
+  
+  /* === TRANSIÃ‡Ã•ES === */
+  --transition-fast: all 0.15s ease;
+  --transition-base: all 0.3s ease;
+  --transition-slow: all 0.5s ease;
+  
+  /* === Z-INDEX === */
+  --z-dropdown: 1000;
+  --z-sticky: 1020;
+  --z-fixed: 1030;
+  --z-modal: 1040;
+  --z-popover: 1050;
+  --z-tooltip: 1060;
+}
+
+/* === CLASSES UTILITÃRIAS === */
+.text-green-severotech { color: var(--color-primary) !important; }
+.bg-green { background-color: var(--color-primary) !important; }
+.bg-dark-severotech { background-color: var(--color-dark) !important; }
+.btn-green { 
+  background-color: var(--color-primary);
+  border-color: var(--color-primary);
+  color: var(--color-white);
+  transition: var(--transition-base);
+}
+.btn-green:hover {
+  background-color: var(--color-primary-dark);
+  border-color: var(--color-primary-dark);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+}
+.btn-outline-green {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+  transition: var(--transition-base);
+}
+.btn-outline-green:hover {
+  background-color: var(--color-primary);
+  border-color: var(--color-primary);
+  color: var(--color-white);
+}
