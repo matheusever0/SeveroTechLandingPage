@@ -1,6 +1,4 @@
-﻿/* =========================================================================
-   SEVEROTECH MAIN CSS - Sistema completo com integraÃ§Ãµes
-   ========================================================================= */
+﻿/* SeveroTech Main CSS - VersÃ£o Final */
 
 /* Import system */
 @import 'base/variables.css';
@@ -11,7 +9,6 @@
 @import 'components/buttons.css';
 @import 'components/cards.css';
 @import 'components/forms.css';
-@import 'components/micro-interactions.css';
 
 /* Layout */
 @import 'layout/hero-advanced.css';
@@ -22,21 +19,5 @@
 /* Integrations */
 @import 'integrations/chatbot.css';
 
-/* Global styles */
-.section-modern {
-  padding: var(--space-24) 0;
-  position: relative;
-}
-
-.container-modern {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0 var(--space-6);
-}
-
-.text-gradient {
-  background: var(--gradient-primary);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
+/* Production optimizations */
+@import 'production.css';
