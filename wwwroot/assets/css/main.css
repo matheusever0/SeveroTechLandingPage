@@ -1,5 +1,5 @@
 ﻿/* =========================================================================
-   SEVEROTECH MAIN CSS - Sistema completo com UX avanÃ§ado
+   SEVEROTECH MAIN CSS - Sistema completo modernizado
    ========================================================================= */
 
 /* Import system */
@@ -11,15 +11,13 @@
 @import 'components/buttons.css';
 @import 'components/cards.css';
 @import 'components/forms.css';
-@import 'components/micro-interactions.css';
 
 /* Layout */
-@import 'layout/hero-advanced.css';
-@import 'layout/navbar-sticky.css';
+@import 'layout/hero.css';
 @import 'layout/header.css';
 @import 'layout/footer.css';
 
-/* Global styles */
+/* Global modern styles */
 .section-modern {
   padding: var(--space-24) 0;
   position: relative;
@@ -31,9 +29,54 @@
   padding: 0 var(--space-6);
 }
 
+/* Scroll snap */
+.scroll-snap-container {
+  scroll-snap-type: y mandatory;
+}
+
+.scroll-snap-section {
+  scroll-snap-align: start;
+}
+
+/* Loading states */
+.loading {
+  position: relative;
+  overflow: hidden;
+}
+
+.loading::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+  animation: shimmer 1.5s infinite;
+}
+
+@keyframes shimmer {
+  0% { left: -100%; }
+  100% { left: 100%; }
+}
+
+/* Utilities */
 .text-gradient {
   background: var(--gradient-primary);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
+}
+
+.backdrop-blur {
+  backdrop-filter: blur(10px);
+}
+
+.hover-lift {
+  transition: var(--transition-all);
+}
+
+.hover-lift:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-xl);
 }
