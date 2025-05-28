@@ -1,71 +1,82 @@
 ﻿/* =========================================================================
-   SEVEROTECH MAIN CSS - Estilos principais
+   SEVEROTECH MAIN CSS - Sistema completo modernizado
    ========================================================================= */
 
-/* Import all base styles */
+/* Import system */
 @import 'base/variables.css';
 @import 'base/reset.css';
 @import 'base/typography.css';
 
-/* Import components */
+/* Components */
 @import 'components/buttons.css';
 @import 'components/cards.css';
+@import 'components/forms.css';
 
-/* Import layout */
+/* Layout */
+@import 'layout/hero.css';
 @import 'layout/header.css';
 @import 'layout/footer.css';
 
-/* Global styles */
-.section-padding {
-  padding: var(--space-xxl) 0;
+/* Global modern styles */
+.section-modern {
+  padding: var(--space-24) 0;
+  position: relative;
 }
 
-.container-custom {
+.container-modern {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 0 var(--space-md);
+  padding: 0 var(--space-6);
 }
 
-/* Animations */
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(30px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+/* Scroll snap */
+.scroll-snap-container {
+  scroll-snap-type: y mandatory;
 }
 
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+.scroll-snap-section {
+  scroll-snap-align: start;
 }
 
-.animate-fade-in-up {
-  animation: fadeInUp 0.8s ease-out;
+/* Loading states */
+.loading {
+  position: relative;
+  overflow: hidden;
 }
 
-.animate-fade-in {
-  animation: fadeIn 0.6s ease-out;
+.loading::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+  animation: shimmer 1.5s infinite;
 }
 
-/* Smooth scrolling */
-html {
-  scroll-behavior: smooth;
+@keyframes shimmer {
+  0% { left: -100%; }
+  100% { left: 100%; }
 }
 
-/* Loading spinner styles */
-.spinner {
-  width: 40px;
-  height: 40px;
-  border: 4px solid rgba(255, 255, 255, 0.3);
-  border-radius: 50%;
-  border-top-color: var(--color-white);
-  animation: spin 1s ease-in-out infinite;
+/* Utilities */
+.text-gradient {
+  background: var(--gradient-primary);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
-@keyframes spin {
-  to { transform: rotate(360deg); }
+.backdrop-blur {
+  backdrop-filter: blur(10px);
+}
+
+.hover-lift {
+  transition: var(--transition-all);
+}
+
+.hover-lift:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-xl);
 }
