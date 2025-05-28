@@ -1,5 +1,5 @@
 ﻿/* =========================================================================
-   SEVEROTECH MAIN CSS - Sistema completo com UX avanÃ§ado
+   SEVEROTECH MAIN CSS - Sistema completo com integraÃ§Ãµes
    ========================================================================= */
 
 /* Import system */
@@ -18,6 +18,9 @@
 @import 'layout/navbar-sticky.css';
 @import 'layout/header.css';
 @import 'layout/footer.css';
+
+/* Integrations */
+@import 'integrations/chatbot.css';
 
 /* Global styles */
 .section-modern {

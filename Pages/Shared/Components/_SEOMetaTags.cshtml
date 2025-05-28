@@ -1,0 +1,23 @@
+﻿@{
+    var pageTitle = ViewData["Title"]?.ToString() ?? "SeveroTech - SoluÃ§Ãµes TecnolÃ³gicas";
+    var pageDescription = ViewData["Description"]?.ToString() ?? "Desenvolvimento de sites, aplicativos e sistemas personalizados.";
+    var pageUrl = $"{Context.Request.Scheme}://{Context.Request.Host}{Context.Request.Path}";
+}
+
+<!-- SEO Meta Tags -->
+<meta name="description" content="@pageDescription">
+<meta name="robots" content="index, follow">
+<meta name="language" content="pt-BR">
+
+<!-- Open Graph -->
+<meta property="og:type" content="website">
+<meta property="og:url" content="@pageUrl">
+<meta property="og:title" content="@pageTitle">
+<meta property="og:description" content="@pageDescription">
+
+<!-- Canonical URL -->
+<link rel="canonical" href="@pageUrl">
+
+<!-- Preload critical resources -->
+<link rel="preload" href="~/assets/css/main.css" as="style">
+<link rel="preload" href="~/assets/js/ux-advanced.js" as="script">
